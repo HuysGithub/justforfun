@@ -11,6 +11,8 @@ class HomePage(tk.Tk):
         self.profile = profile
         self.socket = socket
         self.send_form = {"type": None, "money": 0}
+        self.history_tai = []
+        self.history_xiu = []
         
         self.time_label = Label(self)
         time_label_text = Label(self.time_label,text="time")
@@ -59,6 +61,7 @@ class HomePage(tk.Tk):
         xiu_button.grid(row=0,column=2, padx=10, pady=10)
         self.tx_label.pack()
         
+        
         self.moneyzone_label = tk.Frame(self)
         
         amounts = [10000, 20000, 50000, 100000, 200000, 500000]
@@ -71,6 +74,11 @@ class HomePage(tk.Tk):
             button.grid(row=row, column=col, padx=10, pady=10)
             
         self.moneyzone_label.pack()
+        
+        self.history_label_tai = Label(self,text="Tai:")
+        self.history_label_tai.pack()
+        self.history_label_xiu = Label(self,text="Xiu:")
+        self.history_label_xiu.pack()
         time.sleep(1)
         threading.Thread(target=self.handle_server_message).start()
         self.mainloop()
@@ -100,12 +108,17 @@ class HomePage(tk.Tk):
                     balance = message["balance"]
                     self.update_balance(balance)
                     number = message["number"]
+                    if 2 <= number <= 9 :
+                        taixiu = "xiu"
+                    elif 10 <= number <= 17:
+                        taixiu = "tai"
+                    self.update_history(taixiu)
                     if result == None:
-                        self.result_label.config(text=f"Result: {number}")
+                        self.result_label.config(text=f"Result: {taixiu} {number}")
                     elif result == True:
-                        self.result_label.config(text=f"Result: {number} You win!")
+                        self.result_label.config(text=f"Result: {taixiu} {number} You win!")
                     else:
-                        self.result_label.config(text=f"Result: {number} You lost!")
+                        self.result_label.config(text=f"Result: {taixiu} {number} You lost!")
                     
             except Exception as e:
                 print("Error while receiving message from server:", e)
@@ -142,4 +155,19 @@ class HomePage(tk.Tk):
         self.money_label_value.configure(text="0")
         self.send_form["type"] = None
         self.send_form["money"] = 0
+    
+    def update_history(self, taixiu):
+        if (len(self.history_tai)==10):
+            self.history_tai = []
+            self.history_xiu = []
+            
+        if taixiu == "tai":
+            self.history_tai.append("*")
+            self.history_xiu.append("_")
+        else:
+            self.history_tai.append("_")
+            self.history_xiu.append("*")
+            
+        self.history_label_tai.config(text="Tai" + str(self.history_tai))
+        self.history_label_xiu.config(text="Xiu" + str(self.history_xiu))
         

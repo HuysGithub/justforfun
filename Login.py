@@ -18,7 +18,7 @@ class Login(tk.Tk):
         self.username_entry.pack()
         
         Label(self, text="password").pack()
-        self.password_entry = Entry(self)
+        self.password_entry = Entry(self, show="*")
         self.password_entry.pack()
         
         Label(self, text="Host").pack()
